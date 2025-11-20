@@ -16,7 +16,7 @@ Route::get('/users', function () {
 
 // ----------------------------------------
 Route::get('login', function () {
-    return "Login usuario";
+    return view('auth.login');
 });
 Route::get('logout', function () {
     return "Logout usuario";
