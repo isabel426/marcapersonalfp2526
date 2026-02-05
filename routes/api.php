@@ -14,17 +14,21 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 // Rutas /api/v1
-
 Route::prefix('v1')->group(function () {
-    Route::apiResource('ciclos', CicloController::class);
-    Route::middleware(['auth:sanctum'])->apiResource('curriculos', CurriculoController::class);
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::apiResource('ciclos', CicloController::class);
+        Route::apiResource('curriculos', CurriculoController::class)
+            ->except(['index', 'show']);
 
 
-    Route::apiResource('familias_profesionales', FamiliaProfesionalController::class)
-    ->parameters([
-        'familias_profesionales' => 'familiaProfesional'
-    ]);
+        Route::apiResource('familias_profesionales', FamiliaProfesionalController::class)
+            ->parameters([
+                'familias_profesionales' => 'familiaProfesional'
+            ]);
+    });
 
+    Route::get('/curriculos', [CurriculoController::class, 'index']);
+    Route::get('/curriculos/{curriculo}', [CurriculoController::class, 'show']);
 });
 
 
@@ -45,8 +49,6 @@ Route::any('/{any}', function (ServerRequestInterface $request) {
         $records = json_decode($response->getBody()->getContents())->records;
         $response = response()->json($records, 200, $headers = ['X-Total-Count' => count($records)]);
     } catch (\Throwable $th) {
-
     }
     return $response;
-
 })->where('any', '.*')->middleware(['auth:sanctum']);

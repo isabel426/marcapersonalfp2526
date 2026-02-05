@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CurriculoResource;
 use App\Models\Curriculo;
+use COM;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -14,9 +15,11 @@ class CurriculoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        return CurriculoResource::collection(
+            Curriculo::orderBy($request->sort ?? 'id', $request->order ?? 'asc')
+            ->paginate($request->per_page));
     }
 
     /**
@@ -39,7 +42,7 @@ class CurriculoController extends Controller
      */
     public function show(Curriculo $curriculo)
     {
-        //
+        return new CurriculoResource($curriculo);
     }
 
     /**
@@ -47,6 +50,8 @@ class CurriculoController extends Controller
      */
     public function update(Request $request, Curriculo $curriculo)
     {
+        abort_if ($request->user()->cannot('update', $curriculo), 403);
+
         $curriculoData = [
             'user_id' => Auth::user()->id
         ];
